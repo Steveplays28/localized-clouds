@@ -1,10 +1,9 @@
 package io.github.steveplays28.localizedclouds.mixin.client;
 
-import io.github.steveplays28.localizedclouds.render.LCCloudRenderer;
+import io.github.steveplays28.localizedclouds.client.render.LCCloudRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
