@@ -1,18 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "localizedclouds",
+  "id": "localized-clouds",
   "version": "${version}",
-
-  "name": "localized-clouds",
+  "name": "Localized Clouds",
   "description": "",
   "authors": [],
   "contact": {},
-
   "license": "GNU LGPL 3.0",
   "icon": "icon.png",
-
   "environment": "*",
-  "entrypoints": {},
+  "entrypoints": {
+    "main": [
+      "io.github.steveplays28.localizedclouds.fabric.LocalizedCloudsFabric"
+    ]
+  },
   "mixins": [
     "localizedclouds.mixins.json",
     "localizedclouds-common.mixins.json"
