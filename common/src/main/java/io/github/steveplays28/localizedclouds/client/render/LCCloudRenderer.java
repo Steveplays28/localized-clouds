@@ -6,7 +6,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -18,7 +17,8 @@ public class LCCloudRenderer {
 			var cloudBlockPos = cloud.getBlockPos();
 			var cloudPos = new Vector3f(cloudBlockPos.getX(), cloudBlockPos.getY(), cloudBlockPos.getZ());
 			// Transform cloud position
-			var cloudTransformedPos = cloudPos.sub(camera.getPos().toVector3f());
+			Vector3f cloudTransformedPos = new Vector3f();
+			cloudPos.sub(camera.getPos().toVector3f(), cloudTransformedPos);
 
 			// Translate matrices to world space
 			matrices.translate(cloudTransformedPos.x(), cloudTransformedPos.y(), cloudTransformedPos.z());
