@@ -8,5 +8,9 @@ public class LocalizedCloudsFabric implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LocalizedClouds.init();
+
+		WorldRenderEvents.END.register(context -> {
+			LocalizedClouds.onWorldRenderingEnd(context.camera());
+		});
 	}
 }

@@ -4,39 +4,64 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.steveplays28.localizedclouds.client.ClientCloudTicker;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 public class LCCloudRenderer {
 	private static final float CLOUD_SIZE = 50f;
 
-	public static void render(MatrixStack matrices, ClientWorld world, Entity camera) {
+	public static void render(Camera camera) {
 		ClientCloudTicker.getClouds().forEach(cloud -> {
 			var cloudBlockPos = cloud.getBlockPos();
-			var cloudPos = new Vector3f(cloudBlockPos.getX(), cloudBlockPos.getY(), cloudBlockPos.getZ());
-			// Transform cloud position
-			Vector3f cloudTransformedPos = new Vector3f();
-			cloudPos.sub(camera.getPos().toVector3f(), cloudTransformedPos);
+			Vec3d targetPosition = new Vec3d(cloudBlockPos.getX(), cloudBlockPos.getY(), cloudBlockPos.getZ());
+			Vec3d transformedPosition = targetPosition.subtract(camera.getPos());
 
-			// Translate matrices to world space
-			matrices.translate(cloudTransformedPos.x(), cloudTransformedPos.y(), cloudTransformedPos.z());
+			MatrixStack matrixStack = new MatrixStack();
+			matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
+			matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0F));
+			matrixStack.translate(transformedPosition.x, transformedPosition.y, transformedPosition.z);
 
-			var tessellator = Tessellator.getInstance();
-			buildCloudBuffer(matrices, tessellator, cloudPos);
+//			Matrix4f positionMatrix = matrixStack.peek().getPositionMatrix();
+			Tessellator tessellator = Tessellator.getInstance();
+//			BufferBuilder buffer = tessellator.getBuffer();
+
+			buildCloudBuffer(matrixStack, tessellator);
+
+//			buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
+//			buffer.vertex(positionMatrix, 0, 1, 0).color(1f, 1f, 1f, 1f).texture(0f, 0f).next();
+//			buffer.vertex(positionMatrix, 0, 0, 0).color(1f, 0f, 0f, 1f).texture(0f, 1f).next();
+//			buffer.vertex(positionMatrix, 1, 0, 0).color(0f, 1f, 0f, 1f).texture(1f, 1f).next();
+//			buffer.vertex(positionMatrix, 1, 1, 0).color(0f, 0f, 1f, 1f).texture(1f, 0f).next();
 
 			RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+//			RenderSystem.setShaderTexture(0, new Identifier("examplemod", "icon.png"));
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			// Disable culling to allow viewing the clouds from above, similar to Minecraft's vanilla fast clouds
 			RenderSystem.disableCull();
+//			RenderSystem.depthFunc(GL11.GL_ALWAYS);
+
 			tessellator.draw();
+
+//			RenderSystem.depthFunc(GL11.GL_LEQUAL);
 			RenderSystem.enableCull();
+
+//			RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+//			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+//			// Disable culling to allow viewing the clouds from above, similar to Minecraft's vanilla fast clouds
+//			RenderSystem.disableCull();
+//			RenderSystem.disableDepthTest();
+//			tessellator.draw();
+//			RenderSystem.enableDepthTest();
+//			RenderSystem.enableCull();
 		});
 	}
 
-	private static void buildCloudBuffer(@NotNull MatrixStack matrices, @NotNull Tessellator tessellator, @NotNull Vector3f cloudPos) {
-		var positionMatrix = matrices.peek().getPositionMatrix();
+	private static void buildCloudBuffer(@NotNull MatrixStack matrixStack, @NotNull Tessellator tessellator) {
+		var positionMatrix = matrixStack.peek().getPositionMatrix();
 		var bufferBuilder = tessellator.getBuffer();
 
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);

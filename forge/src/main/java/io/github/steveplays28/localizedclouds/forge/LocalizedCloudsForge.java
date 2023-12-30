@@ -11,5 +11,7 @@ public class LocalizedCloudsForge {
 		// Submit our event bus to let Architectury register our content on the right time
 		EventBuses.registerModEventBus(LocalizedClouds.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
 		LocalizedClouds.init();
+
+		// TODO: Implement world rendering end event
 	}
 }

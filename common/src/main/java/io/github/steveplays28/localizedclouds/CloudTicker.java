@@ -1,6 +1,10 @@
 package io.github.steveplays28.localizedclouds;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.pipeline.JNoise;
 import io.github.steveplays28.localizedclouds.network.LocalizedCloudsNetworking;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +17,13 @@ import java.util.List;
 public class CloudTicker {
 	private static final List<Cloud> clouds = new ArrayList<>();
 
+	private static MinecraftServer server;
+	private static final JNoise noise = JNoise.newBuilder().perlin(3301, Interpolation.COSINE, FadeFunction.QUINTIC_POLY).scale(0.01d).build();
+
+	public static void init(MinecraftServer server) {
+		CloudTicker.server = server;
+	}
+
 	public static void tickClouds(ServerWorld world) {
 		clouds.parallelStream().forEach(Cloud::tick);
 	}
@@ -20,9 +31,21 @@ public class CloudTicker {
 	public static void spawnCloudsOnPlayer(@NotNull ServerPlayerEntity player) {
 		var world = player.getServerWorld();
 		var playerBlockPos = player.getBlockPos();
-		playerBlockPos.withY(world.getTopY(Heightmap.Type.MOTION_BLOCKING, playerBlockPos.getX(), playerBlockPos.getZ()));
 
-		spawnCloud(world, playerBlockPos);
+		for (var blockPos : BlockPos.iterateOutwards(playerBlockPos, server.getPlayerManager().getSimulationDistance() * 16, 1,
+				server.getPlayerManager().getSimulationDistance() * 16
+		)) {
+			if (Math.abs(noise.evaluateNoise(playerBlockPos.getX(), playerBlockPos.getY(), playerBlockPos.getZ(),
+					System.currentTimeMillis()
+			)) < 0.25f) {
+				continue;
+			}
+
+			blockPos.withY(world.getTopY(Heightmap.Type.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ()));
+			spawnCloud(world, blockPos);
+		}
+
+		LocalizedClouds.LOGGER.info("{} clouds spawned, list: {}", clouds.size(), clouds);
 	}
 
 	public static void spawnCloud(ServerWorld world, @NotNull BlockPos blockPos) {
