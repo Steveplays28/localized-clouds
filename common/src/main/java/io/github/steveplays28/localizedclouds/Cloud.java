@@ -35,6 +35,6 @@ public class Cloud {
 	}
 
 	public void tick() {
-
+		// TODO: Move clouds using 4D noise
 	}
 }

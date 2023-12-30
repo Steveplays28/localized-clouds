@@ -4,13 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.steveplays28.localizedclouds.client.ClientCloudTicker;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
 
 public class LCCloudRenderer {
 	private static final float CLOUD_SIZE = 50f;

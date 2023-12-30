@@ -2,6 +2,9 @@ package io.github.steveplays28.localizedclouds;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.generators.noise_parameters.simplex_variants.Simplex2DVariant;
+import de.articdive.jnoise.generators.noise_parameters.simplex_variants.Simplex3DVariant;
+import de.articdive.jnoise.generators.noise_parameters.simplex_variants.Simplex4DVariant;
 import de.articdive.jnoise.pipeline.JNoise;
 import io.github.steveplays28.localizedclouds.network.LocalizedCloudsNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -18,7 +21,8 @@ public class CloudTicker {
 	private static final List<Cloud> clouds = new ArrayList<>();
 
 	private static MinecraftServer server;
-	private static final JNoise noise = JNoise.newBuilder().perlin(3301, Interpolation.COSINE, FadeFunction.QUINTIC_POLY).scale(0.01d).build();
+	private static final JNoise noise = JNoise.newBuilder().perlin(3301, Interpolation.COSINE, FadeFunction.CUBIC_POLY).scale(
+			0.01d).build();
 
 	public static void init(MinecraftServer server) {
 		CloudTicker.server = server;
@@ -35,9 +39,12 @@ public class CloudTicker {
 		for (var blockPos : BlockPos.iterateOutwards(playerBlockPos, server.getPlayerManager().getSimulationDistance() * 16, 1,
 				server.getPlayerManager().getSimulationDistance() * 16
 		)) {
-			if (Math.abs(noise.evaluateNoise(playerBlockPos.getX(), playerBlockPos.getY(), playerBlockPos.getZ(),
-					System.currentTimeMillis()
-			)) < 0.25f) {
+			LocalizedClouds.LOGGER.info("noise at {}: {}", blockPos,
+					noise.evaluateNoise(blockPos.getX(), blockPos.getY(), blockPos.getZ())
+			);
+
+			if (noise.evaluateNoise(blockPos.getX(), blockPos.getY(), blockPos.getZ()
+			) < 0.25f) {
 				continue;
 			}
 
@@ -45,7 +52,7 @@ public class CloudTicker {
 			spawnCloud(world, blockPos);
 		}
 
-		LocalizedClouds.LOGGER.info("{} clouds spawned, list: {}", clouds.size(), clouds);
+//		LocalizedClouds.LOGGER.info("{} clouds spawned, list: {}", clouds.size(), clouds);
 	}
 
 	public static void spawnCloud(ServerWorld world, @NotNull BlockPos blockPos) {
